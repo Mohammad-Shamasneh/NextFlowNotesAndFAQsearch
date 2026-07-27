@@ -5,7 +5,7 @@ import { registerGreetTool } from "./tools/greet.js";
 // Week 2: import and register your project tools here, for example:
 import { registerSearchNotesTool } from "./tools/search-notes.js";
 import { registerListNotesTool } from "./tools/list-notes.js";
-// import { registerAddNoteTool } from "./tools/add-note.js";
+import { registerAddNoteTool } from "./tools/add-note.js";
 
 /**
  * Factory used by stdio (and later HTTP) so every connection gets a fresh server.
@@ -24,7 +24,7 @@ function createServer(): McpServer {
   // Week 2 — register your multi-tool skeleton (stubs are OK)
   registerSearchNotesTool(server);
   registerListNotesTool(server);
-  // registerAddNoteTool(server);
+   registerAddNoteTool(server);
 
   return server;
 }

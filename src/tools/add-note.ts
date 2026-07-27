@@ -1,35 +1,136 @@
+import { mkdir, writeFile } from "node:fs/promises";
+import { relative, resolve } from "node:path";
+
 import type { McpServer } from "@modelcontextprotocol/server";
 
 import { addNoteInputSchema } from "../schemas/add-note.js";
 
-/** EXAMPLE Week 2 stub — append a new note (P0 candidate). */
+/**
+ * Convert the note title into a safe Markdown file name.
+ */
+function createSafeFileName(title: string): string | null {
+  const titleWithoutExtension = title
+    .trim()
+    .replace(/\.md$/i, "");
+
+  // Reject paths such as ../secret or notes/file
+  if (
+    titleWithoutExtension.includes("..") ||
+    titleWithoutExtension.includes("/") ||
+    titleWithoutExtension.includes("\\")
+  ) {
+    return null;
+  }
+
+  const safeName = titleWithoutExtension
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^\p{L}\p{N}_-]/gu, "")
+    .replace(/-+/g, "-")
+    .replace(/^[-_]+|[-_]+$/g, "");
+
+  if (!safeName) {
+    return null;
+  }
+
+  return `${safeName}.md`;
+}
+
 export function registerAddNoteTool(server: McpServer): void {
   server.registerTool(
     "add_note",
     {
       description:
-        "Create a new local note file with a title and body for later search.",
+        "Create a new Markdown note inside the local notes directory.",
       inputSchema: addNoteInputSchema,
     },
+
     async ({ title, body }) => {
-      return {
-        content: [
-          {
-            type: "text",
-            text: JSON.stringify(
+      if (!body.trim()) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: "The note body cannot be empty.",
+            },
+          ],
+          isError: true,
+        };
+      }
+
+      const fileName = createSafeFileName(title);
+
+      if (!fileName) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: "Invalid title. Do not use paths such as ../ or / in the title.",
+            },
+          ],
+          isError: true,
+        };
+      }
+
+      const projectRoot = process.cwd();
+      const notesFolder = resolve(projectRoot, "notes");
+      const notePath = resolve(notesFolder, fileName);
+
+      try {
+        // Create notes/ if it does not exist
+        await mkdir(notesFolder, {
+          recursive: true,
+        });
+
+        // wx prevents replacing an existing file
+        await writeFile(notePath, `${body.trim()}\n`, {
+          encoding: "utf8",
+          flag: "wx",
+        });
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(
+                {
+                  success: true,
+                  tool: "add_note",
+                  title,
+                  fileName,
+                  path: relative(projectRoot, notePath),
+                },
+                null,
+                2,
+              ),
+            },
+          ],
+        };
+      } catch (error) {
+        const fileError = error as NodeJS.ErrnoException;
+
+        if (fileError.code === "EEXIST") {
+          return {
+            content: [
               {
-                stub: true,
-                tool: "add_note",
-                title,
-                bodyPreview: body.slice(0, 80),
-                message: "Replace this stub in Week 3 with a real file write.",
+                type: "text",
+                text: `A note named "${fileName}" already exists.`,
               },
-              null,
-              2,
-            ),
-          },
-        ],
-      };
+            ],
+            isError: true,
+          };
+        }
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Could not create the note: ${fileError.message}`,
+            },
+          ],
+          isError: true,
+        };
+      }
     },
   );
 }
