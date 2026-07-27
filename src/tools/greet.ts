@@ -8,10 +8,10 @@ import { greetInputSchema } from "../schemas/greet.js";
  */
 export function registerGreetTool(server: McpServer): void {
   server.registerTool(
-    "greet",
+    "greetMohammad",
     {
       description:
-        "Return a short greeting for a person. Use this to verify the MCP server is running.",
+        "Return a short greeting for a Mohammad. Use this to verify the MCP server is running.",
       inputSchema: greetInputSchema,
     },
     async ({ name }) => {
@@ -19,7 +19,7 @@ export function registerGreetTool(server: McpServer): void {
         content: [
           {
             type: "text",
-            text: `Hello, ${name}! Your MCP server is running.`,
+            text: `Hello, ${name}! Your MCP server is running. Welcome to the Model Context Protocol, my name is Mohammad Shamasneh`,
           },
         ],
       };

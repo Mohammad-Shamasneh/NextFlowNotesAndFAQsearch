@@ -11,6 +11,7 @@ import { registerGreetTool } from "./tools/greet.js";
  * Factory used by stdio (and later HTTP) so every connection gets a fresh server.
  * Register all tools inside this function — never on a shared global instance.
  */
+// the (:) means the type of the function is McpServer.
 function createServer(): McpServer {
   const server = new McpServer({
     name: "mcprepo",
