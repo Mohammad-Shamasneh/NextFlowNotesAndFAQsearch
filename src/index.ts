@@ -3,8 +3,8 @@ import { serveStdio } from "@modelcontextprotocol/server/stdio";
 
 import { registerGreetTool } from "./tools/greet.js";
 // Week 2: import and register your project tools here, for example:
-// import { registerSearchNotesTool } from "./tools/search-notes.js";
- import { registerListNotesTool } from "./tools/list-notes.js";
+import { registerSearchNotesTool } from "./tools/search-notes.js";
+import { registerListNotesTool } from "./tools/list-notes.js";
 // import { registerAddNoteTool } from "./tools/add-note.js";
 
 /**
@@ -22,7 +22,7 @@ function createServer(): McpServer {
   registerGreetTool(server);
 
   // Week 2 — register your multi-tool skeleton (stubs are OK)
-  // registerSearchNotesTool(server);
+  registerSearchNotesTool(server);
   registerListNotesTool(server);
   // registerAddNoteTool(server);
 
