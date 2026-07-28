@@ -1,5 +1,6 @@
 import { z } from "zod/v4";
 
+// Input schema for the add_note tool
 export const addNoteInputSchema = z.object({
   title: z
     .string()
@@ -8,5 +9,5 @@ export const addNoteInputSchema = z.object({
   body: z
     .string()
     .min(1)
-    .describe("Full note content to save as plain text"),
+    .describe("Content that will be written inside the note"),
 });

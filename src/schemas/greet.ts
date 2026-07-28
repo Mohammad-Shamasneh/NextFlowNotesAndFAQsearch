@@ -1,5 +1,6 @@
 import { z } from "zod/v4";
 
+// Input schema for the greet tool
 export const greetInputSchema = z.object({
   name: z
     .string()

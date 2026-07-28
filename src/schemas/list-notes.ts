@@ -1,5 +1,6 @@
 import { z } from "zod/v4";
 
+// Input schema for the list_notes tool
 export const listNotesInputSchema = z.object({
   folder: z
     .string()
