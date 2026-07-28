@@ -2,10 +2,10 @@
 
 > Mandatory for mentor review. Open a GitHub Issue linking to this file before Week 3.
 
-**Student:** Nadeen Jaber  
+**Student:** Nadeen Jaber , Mohammad-Shamasneh
 **Repo:** NextFlowNotesAndFAQsearch  
 **Branch:** `week-2-design`  
-**GitHub Issue:** *(Add the GitHub Issue link after creating it.)*
+**GitHub Issue:** (https://github.com/Mohammad-Shamasneh/NextFlowNotesAndFAQsearch)
 
 ---
 
