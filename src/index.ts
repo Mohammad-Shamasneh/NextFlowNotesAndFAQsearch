@@ -6,7 +6,8 @@ import { registerGreetTool } from "./tools/greet.js";
 import { registerSearchNotesTool } from "./tools/search-notes.js";
 import { registerListNotesTool } from "./tools/list-notes.js";
 import { registerAddNoteTool } from "./tools/add-note.js";
-
+import { registerReadNoteTool } from "./tools/read-note.js";
+import { registerUpdateNoteTool } from "./tools/update-note.js";
 /**
  * Factory used by stdio (and later HTTP) so every connection gets a fresh server.
  * Register all tools inside this function — never on a shared global instance.
@@ -24,7 +25,9 @@ function createServer(): McpServer {
   // Week 2 — register your multi-tool skeleton (stubs are OK)
   registerSearchNotesTool(server);
   registerListNotesTool(server);
-   registerAddNoteTool(server);
+  registerAddNoteTool(server);
+  registerReadNoteTool(server);
+  registerUpdateNoteTool(server);
 
   return server;
 }

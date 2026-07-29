@@ -153,6 +153,14 @@ MCPRepo/
 - Prefer small focused tools over one mega-tool with an `action` enum
 - Avoid paid APIs / OAuth-heavy projects in Weeks 1–2
 
+## Notes from reading MCPRepo README
+
+- We use clear `verb_noun` tool names such as `search_notes` and `list_notes`.
+- Each tool performs one focused task.
+- Tool descriptions are written clearly for the AI model.
+- Every Zod input field includes `.describe(...)`.
+- Invalid inputs are rejected through schema validation before the handler runs.
+
 ## Links
 
 - [NextFlows Academy](https://nextflows.ai/academy)
