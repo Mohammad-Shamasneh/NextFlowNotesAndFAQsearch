@@ -33,6 +33,8 @@ Mark exactly **three** tools as **P0** (must work for Demo Day). Others can be P
 | P0 | `read_note` | Reads the complete content of a selected note. | Note name | Full note content |
 | P1 | `add_note` | Creates a new note in the notes folder. | Title, content | Success confirmation |
 | P1 | `update_note` | Updates the content of an existing note. | Note name, new content | Success confirmation |
+| P1 | `append_note` | Adds content to the end of an existing note without replacing its current content. | Note name, content | Success confirmation |
+| P1 | `delete_note` | Permanently deletes an existing note when explicitly requested by the user. | Note name | Success confirmation |
 
 ## 4. Out of scope
 
