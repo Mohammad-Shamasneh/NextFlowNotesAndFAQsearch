@@ -82,7 +82,7 @@ export function registerSearchNotesTool(server: McpServer): void {
       const maximumResults = limit ?? 5;
 
       // Notes will be stored in a folder named "notes" at the project root.
-      const notesDirectory = path.join(process.cwd(), "notes");
+      const notesDirectory = path.join(process.cwd(), "data");
 
       try {
         const noteFiles = await getNoteFiles(notesDirectory);

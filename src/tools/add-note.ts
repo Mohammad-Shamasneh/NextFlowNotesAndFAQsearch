@@ -73,7 +73,7 @@ export function registerAddNoteTool(server: McpServer): void {
       }
 
       const projectRoot = process.cwd();
-      const notesFolder = resolve(projectRoot, "notes");
+      const notesFolder = resolve(projectRoot, "data");
       const notePath = resolve(notesFolder, fileName);
 
       try {

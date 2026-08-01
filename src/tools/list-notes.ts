@@ -16,7 +16,7 @@ export function registerListNotesTool(server: McpServer): void {
 
     async ({ folder }) => {
       const projectRoot = process.cwd();
-      const notesRoot = resolve(projectRoot, "notes");
+      const notesRoot = resolve(projectRoot, "data");
 
       // If the user does not provide a folder, use notes/
       const requestedFolder = folder ?? "notes";
