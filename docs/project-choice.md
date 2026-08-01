@@ -2,6 +2,11 @@
 
 > Complete in Week 2. One sentence only for the pitch line — expand details below if needed.
 
+## Team Members
+
+- Nadeen Jaber
+- Mohammad Shamasneh
+
 ## Pitch (required)
 
 We are building a **Notes & FAQ Search MCP Server** for **students and learners** so that **they can quickly search, read, and manage course notes directly from an AI assistant**.
