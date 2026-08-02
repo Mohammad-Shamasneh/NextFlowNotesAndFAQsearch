@@ -37,7 +37,7 @@ export function registerDeleteNoteTool(server: McpServer): void {
     "delete_note",
     {
       description:
-        "Permanently delete an existing Markdown note from the local notes directory. Use only when the user explicitly asks to delete a note.",
+        "Permanently delete an existing Markdown note from the local data directory. Use only when the user explicitly asks to delete a note.",
       inputSchema: deleteNoteInputSchema,
     },
 
@@ -57,8 +57,8 @@ export function registerDeleteNoteTool(server: McpServer): void {
       }
 
       const projectRoot = process.cwd();
-      const notesFolder = resolve(projectRoot, "data");
-      const notePath = resolve(notesFolder, fileName);
+      const dataFolder = resolve(projectRoot, "data");
+      const notePath = resolve(dataFolder, fileName);
 
       try {
         await unlink(notePath);
@@ -84,6 +84,10 @@ export function registerDeleteNoteTool(server: McpServer): void {
       } catch (error) {
         const fileError = error as NodeJS.ErrnoException;
 
+        console.error(
+          `[delete_note] Failed to delete "${fileName}": ${fileError.message}`,
+        );
+
         if (fileError.code === "ENOENT") {
           return {
             content: [
@@ -100,7 +104,7 @@ export function registerDeleteNoteTool(server: McpServer): void {
           content: [
             {
               type: "text",
-              text: `Could not delete the note: ${fileError.message}`,
+              text: "Could not delete the note.",
             },
           ],
           isError: true,

@@ -1,4 +1,4 @@
-import { appendFile } from "node:fs/promises";
+import { access, appendFile } from "node:fs/promises";
 import { relative, resolve } from "node:path";
 
 import type { McpServer } from "@modelcontextprotocol/server";
@@ -37,7 +37,7 @@ export function registerAppendNoteTool(server: McpServer): void {
     "append_note",
     {
       description:
-        "Add new content to the end of an existing Markdown note without replacing its current content.",
+        "Append new content to an existing Markdown note inside the local data directory without replacing its current content.",
       inputSchema: appendNoteInputSchema,
     },
 
@@ -69,13 +69,15 @@ export function registerAppendNoteTool(server: McpServer): void {
       }
 
       const projectRoot = process.cwd();
-      const notesFolder = resolve(projectRoot, "data");
-      const notePath = resolve(notesFolder, fileName);
+      const dataFolder = resolve(projectRoot, "data");
+      const notePath = resolve(dataFolder, fileName);
 
       try {
+        // Confirm that the note already exists.
+        await access(notePath);
+
         await appendFile(notePath, `\n${content.trim()}\n`, {
           encoding: "utf8",
-          flag: "a",
         });
 
         return {
@@ -99,11 +101,27 @@ export function registerAppendNoteTool(server: McpServer): void {
       } catch (error) {
         const fileError = error as NodeJS.ErrnoException;
 
+        console.error(
+          `[append_note] Failed to append to "${fileName}": ${fileError.message}`,
+        );
+
+        if (fileError.code === "ENOENT") {
+          return {
+            content: [
+              {
+                type: "text",
+                text: `The note "${fileName}" does not exist.`,
+              },
+            ],
+            isError: true,
+          };
+        }
+
         return {
           content: [
             {
               type: "text",
-              text: `Could not append to the note: ${fileError.message}`,
+              text: "Could not append content to the note.",
             },
           ],
           isError: true,

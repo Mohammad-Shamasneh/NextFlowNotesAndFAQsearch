@@ -109,6 +109,10 @@ export function registerAddNoteTool(server: McpServer): void {
       } catch (error) {
         const fileError = error as NodeJS.ErrnoException;
 
+        console.error(
+          `[add_note] Failed to create "${fileName}": ${fileError.message}`,
+        );
+
         if (fileError.code === "EEXIST") {
           return {
             content: [
@@ -125,7 +129,7 @@ export function registerAddNoteTool(server: McpServer): void {
           content: [
             {
               type: "text",
-              text: `Could not create the note: ${fileError.message}`,
+              text: "Could not create the note.",
             },
           ],
           isError: true,

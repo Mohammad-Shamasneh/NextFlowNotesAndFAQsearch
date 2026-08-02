@@ -11,7 +11,7 @@ import { updateNoteInputSchema } from "../schemas/update-note.js";
 function createSafeFileName(noteName: string): string | null {
   const normalizedName = noteName.trim();
 
-  // Reject paths such as ../secret or notes/file
+  // Reject paths such as ../secret or data/file
   if (
     normalizedName.includes("..") ||
     normalizedName.includes("/") ||
@@ -41,7 +41,7 @@ export function registerUpdateNoteTool(server: McpServer): void {
     "update_note",
     {
       description:
-        "Update the complete content of an existing Markdown note in the local notes directory.",
+        "Update the complete content of an existing Markdown note in the local data directory.",
       inputSchema: updateNoteInputSchema,
     },
 
@@ -73,8 +73,8 @@ export function registerUpdateNoteTool(server: McpServer): void {
       }
 
       const projectRoot = process.cwd();
-      const notesFolder = resolve(projectRoot, "data");
-      const notePath = resolve(notesFolder, fileName);
+      const dataFolder = resolve(projectRoot, "data");
+      const notePath = resolve(dataFolder, fileName);
 
       try {
         // r+ prevents creating a new file if the note does not exist
@@ -105,6 +105,10 @@ export function registerUpdateNoteTool(server: McpServer): void {
       } catch (error) {
         const fileError = error as NodeJS.ErrnoException;
 
+        console.error(
+          `[update_note] Failed to update "${fileName}": ${fileError.message}`,
+        );
+
         if (fileError.code === "ENOENT") {
           return {
             content: [
@@ -121,7 +125,7 @@ export function registerUpdateNoteTool(server: McpServer): void {
           content: [
             {
               type: "text",
-              text: `Could not update the note: ${fileError.message}`,
+              text: "Could not update the note.",
             },
           ],
           isError: true,

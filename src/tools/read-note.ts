@@ -11,7 +11,7 @@ import { readNoteInputSchema } from "../schemas/read-note.js";
 function createSafeFileName(noteName: string): string | null {
   const normalizedName = noteName.trim();
 
-  // Reject paths such as ../secret or notes/file
+  // Reject paths such as ../secret or data/file
   if (
     normalizedName.includes("..") ||
     normalizedName.includes("/") ||
@@ -41,7 +41,7 @@ export function registerReadNoteTool(server: McpServer): void {
     "read_note",
     {
       description:
-        "Read the complete content of a Markdown note from the local notes directory.",
+        "Read the complete content of a Markdown note from the local data directory.",
       inputSchema: readNoteInputSchema,
     },
 
@@ -61,8 +61,8 @@ export function registerReadNoteTool(server: McpServer): void {
       }
 
       const projectRoot = process.cwd();
-      const notesFolder = resolve(projectRoot, "data");
-      const notePath = resolve(notesFolder, fileName);
+      const dataFolder = resolve(projectRoot, "data");
+      const notePath = resolve(dataFolder, fileName);
 
       try {
         const noteContent = await readFile(notePath, {
@@ -91,6 +91,10 @@ export function registerReadNoteTool(server: McpServer): void {
       } catch (error) {
         const fileError = error as NodeJS.ErrnoException;
 
+        console.error(
+          `[read_note] Failed to read "${fileName}": ${fileError.message}`,
+        );
+
         if (fileError.code === "ENOENT") {
           return {
             content: [
@@ -107,7 +111,7 @@ export function registerReadNoteTool(server: McpServer): void {
           content: [
             {
               type: "text",
-              text: `Could not read the note: ${fileError.message}`,
+              text: "Could not read the note.",
             },
           ],
           isError: true,

@@ -81,11 +81,11 @@ export function registerSearchNotesTool(server: McpServer): void {
     async ({ query, limit }) => {
       const maximumResults = limit ?? 5;
 
-      // Notes will be stored in a folder named "notes" at the project root.
-      const notesDirectory = path.join(process.cwd(), "data");
+      // Notes are stored in the data directory at the project root.
+      const dataDirectory = path.join(process.cwd(), "data");
 
       try {
-        const noteFiles = await getNoteFiles(notesDirectory);
+        const noteFiles = await getNoteFiles(dataDirectory);
         const results: SearchResult[] = [];
 
         for (const filePath of noteFiles) {
@@ -107,7 +107,7 @@ export function registerSearchNotesTool(server: McpServer): void {
 
           results.push({
             file: path.basename(filePath),
-            path: path.relative(notesDirectory, filePath),
+            path: path.relative(dataDirectory, filePath),
             snippet:
               createSnippet(content, query) ||
               content.replace(/\s+/g, " ").trim().slice(0, 200),
@@ -142,20 +142,16 @@ export function registerSearchNotesTool(server: McpServer): void {
         const errorMessage =
           error instanceof Error ? error.message : "Unknown search error";
 
+        console.error(
+          `[search_notes] Search failed in data directory: ${errorMessage}`,
+        );
+
         return {
           isError: true,
           content: [
             {
               type: "text",
-              text: JSON.stringify(
-                {
-                  error: "Unable to search notes.",
-                  details: errorMessage,
-                  expectedDirectory: notesDirectory,
-                },
-                null,
-                2,
-              ),
+              text: "Unable to search notes.",
             },
           ],
         };

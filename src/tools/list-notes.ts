@@ -10,32 +10,32 @@ export function registerListNotesTool(server: McpServer): void {
     "list_notes",
     {
       description:
-        "List available local Markdown and text notes inside the notes folder.",
+        "List available local Markdown and text notes inside the data directory.",
       inputSchema: listNotesInputSchema,
     },
 
     async ({ folder }) => {
       const projectRoot = process.cwd();
-      const notesRoot = resolve(projectRoot, "data");
+      const dataRoot = resolve(projectRoot, "data");
 
-      // If the user does not provide a folder, use notes/
-      const requestedFolder = folder ?? "notes";
+      // If the user does not provide a folder, use data/
+      const requestedFolder = folder ?? "data";
       const targetFolder = resolve(projectRoot, requestedFolder);
 
-      // Prevent access outside notes/
-      const pathFromNotesRoot = relative(notesRoot, targetFolder);
+      // Prevent access outside data/
+      const pathFromDataRoot = relative(dataRoot, targetFolder);
 
-      const isOutsideNotes =
-        pathFromNotesRoot === ".." ||
-        pathFromNotesRoot.startsWith(`..${sep}`) ||
-        isAbsolute(pathFromNotesRoot);
+      const isOutsideData =
+        pathFromDataRoot === ".." ||
+        pathFromDataRoot.startsWith(`..${sep}`) ||
+        isAbsolute(pathFromDataRoot);
 
-      if (isOutsideNotes) {
+      if (isOutsideData) {
         return {
           content: [
             {
               type: "text",
-              text: "The folder must be inside the notes directory.",
+              text: "The folder must be inside the data directory.",
             },
           ],
           isError: true,
@@ -43,12 +43,10 @@ export function registerListNotesTool(server: McpServer): void {
       }
 
       try {
-        // Read the folder
         const entries = await readdir(targetFolder, {
           withFileTypes: true,
         });
 
-        // Keep only .md and .txt files
         const files = entries
           .filter((entry) => {
             const fileName = entry.name.toLowerCase();
@@ -58,15 +56,13 @@ export function registerListNotesTool(server: McpServer): void {
               (fileName.endsWith(".md") || fileName.endsWith(".txt"))
             );
           })
-          .map((entry) => {
-            return {
-              name: entry.name,
-              path: relative(
-                projectRoot,
-                resolve(targetFolder, entry.name),
-              ),
-            };
-          })
+          .map((entry) => ({
+            name: entry.name,
+            path: relative(
+              projectRoot,
+              resolve(targetFolder, entry.name),
+            ),
+          }))
           .sort((first, second) =>
             first.name.localeCompare(second.name),
           );
@@ -81,6 +77,10 @@ export function registerListNotesTool(server: McpServer): void {
                   folder: relative(projectRoot, targetFolder),
                   count: files.length,
                   files,
+                  message:
+                    files.length > 0
+                      ? `Found ${files.length} note file(s).`
+                      : "No note files were found.",
                 },
                 null,
                 2,
@@ -89,16 +89,20 @@ export function registerListNotesTool(server: McpServer): void {
           ],
         };
       } catch (error) {
-        const message =
+        const errorMessage =
           error instanceof Error
             ? error.message
             : "Unknown file-system error";
+
+        console.error(
+          `[list_notes] Failed to list notes: ${errorMessage}`,
+        );
 
         return {
           content: [
             {
               type: "text",
-              text: `Could not list notes: ${message}`,
+              text: "Could not list notes.",
             },
           ],
           isError: true,
