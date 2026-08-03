@@ -3,6 +3,7 @@ import { relative, resolve } from "node:path";
 
 import type { McpServer } from "@modelcontextprotocol/server";
 
+import { noteFileSchema } from "../schemas/note-file.js";
 import { readNoteInputSchema } from "../schemas/read-note.js";
 
 /**
@@ -69,6 +70,12 @@ export function registerReadNoteTool(server: McpServer): void {
           encoding: "utf8",
         });
 
+        // Validate the file payload before using it.
+        const validatedNote = noteFileSchema.parse({
+          fileName,
+          content: noteContent,
+        });
+
         return {
           content: [
             {
@@ -78,9 +85,9 @@ export function registerReadNoteTool(server: McpServer): void {
                   success: true,
                   tool: "read_note",
                   noteName,
-                  fileName,
+                  fileName: validatedNote.fileName,
                   path: relative(projectRoot, notePath),
-                  content: noteContent,
+                  content: validatedNote.content,
                 },
                 null,
                 2,
