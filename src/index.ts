@@ -10,6 +10,9 @@ import { registerReadNoteTool } from "./tools/read-note.js";
 import { registerUpdateNoteTool } from "./tools/update-note.js";
 import { registerAppendNoteTool } from "./tools/append-note.js";
 import { registerDeleteNoteTool } from "./tools/delete-note.js";
+
+
+import { registerStaticResources } from "./resources/static-resources.js";
 /**
  * Factory used by stdio (and later HTTP) so every connection gets a fresh server.
  * Register all tools inside this function — never on a shared global instance.
@@ -32,6 +35,11 @@ function createServer(): McpServer {
   registerUpdateNoteTool(server);
 registerAppendNoteTool(server);
 registerDeleteNoteTool(server);
+
+
+
+registerStaticResources(server);
+
   return server;
 }
 
