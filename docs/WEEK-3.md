@@ -160,3 +160,10 @@ The P0 and P1 tools use Markdown files from the same directory, and the Week 3 d
 - Local fixture files make testing and Demo Day more reliable.
 - Failure cases should be planned before completing the handlers.
 - A shared data directory makes the project easier to understand and maintain.
+
+
+
+
+## MCP Inspector Testing
+
+The project uses local Markdown files stored in the `data/` directory as its data source. The `list_notes`, `search_notes`, and `read_note` P0 tools were tested successfully using MCP Inspector and returned real data from the files. I also tested an invalid request by sending an empty search query, which returned a clear validation error instead of stopping the server. The MCP server continued running normally after the failure test.
