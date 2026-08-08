@@ -4,11 +4,10 @@
 
 During Week 3, we connected the Notes & FAQ Search MCP project to real local data.
 
-
-The project now uses Markdown files stored inside:
+The project now uses Markdown files stored directly inside:
 
 ```text
-./data/notes/
+./data/
 ```
 
 Each note is stored as a separate `.md` file. This keeps the project simple, free, and fully functional without Wi-Fi or external APIs.
@@ -17,14 +16,13 @@ Each note is stored as a separate `.md` file. This keeps the project simple, fre
 
 - Reviewed the P0 and P1 tools defined in `docs/design.md`.
 - Selected local Markdown files as the data source.
-- Created the `data/notes/` directory.
+- Created the `data/` directory.
 - Added sample `.md` note files to use as fixtures.
 - Created `docs/data-plan.md`.
 - Added the source, fixture path, authentication, rate limits, failure modes, and example response for every tool.
 - Set authentication and rate limits to `none`.
 - Confirmed that the project can work completely offline.
-- Updated the tools to use the new notes location.
-
+- Updated the tools to use the new data location.
 
 ## Tools Covered
 
@@ -44,10 +42,8 @@ Each note is stored as a separate `.md` file. This keeps the project simple, fre
 All tools use the same data source:
 
 ```text
-./data/notes/
+./data/
 ```
-
-
 
 ## Main Project Change
 
@@ -59,13 +55,13 @@ Before Week 3, the note files were stored directly inside:
 
 The tools were also reading and writing files using that path.
 
-During Week 3, we moved the notes folder into the required `data` directory:
+During Week 3, we moved the note files into the required data directory:
 
 ```text
-./data/notes/
+./data/
 ```
 
-Because the old path was written inside the tool handlers, moving the folder caused the tools to stop finding the note files.
+Because the old path was written inside the tool handlers, moving the files caused the tools to stop finding the note files.
 
 For example, the tools previously used paths similar to:
 
@@ -76,14 +72,14 @@ resolve(process.cwd(), "notes");
 The paths were updated to use:
 
 ```ts
-resolve(process.cwd(), "data", "notes");
+resolve(process.cwd(), "data");
 ```
 
 ## Problems We Faced
 
-### 1. Tools could not find the notes folder
+### 1. Tools could not find the data directory
 
-After moving `notes/` into `data/`, the tools were still searching in the old location.
+After moving the note files into `data/`, the tools were still searching in the old `notes/` location.
 
 This affected all tools that read, create, update, append, or delete note files.
 
@@ -102,25 +98,25 @@ git-basics.md
 while others returned:
 
 ```text
-data/notes/git-basics.md
+data/git-basics.md
 ```
 
 The response paths needed to be reviewed so they followed the same format.
 
 ### 4. Keeping file access safe
 
-The tools must only access files inside `data/notes/`. We needed to keep the existing validation that prevents paths such as:
+The tools must only access files inside `data/`. We needed to keep the existing validation that prevents paths such as:
 
 ```text
 ../secret.md
 ```
 
-from accessing files outside the notes directory.
+from accessing files outside the data directory.
 
 ## How We Solved the Problems
 
-- Updated the notes directory path in every tool.
-- Used `data/notes/` as the single data location for both P0 and P1 tools.
+- Updated the data directory path in every tool.
+- Used `data/` as the single data location for both P0 and P1 tools.
 - Reviewed the returned relative paths to keep responses consistent.
 - Kept file-name validation and path-traversal protection.
 - Tested the tools using local Markdown fixture files.
@@ -131,14 +127,20 @@ from accessing files outside the notes directory.
 ```text
 NextFlowNotesAndFAQsearch/
 ├── data/
-│   └── notes/
-│       ├── git-basics.md
-│       ├── github-faq.md
-│       └── mcp-introduction.md
+│   ├── course-faq.md
+│   ├── git-and-github.md
+│   ├── mcp-basics.md
+│   ├── nodejs.md
+│   ├── office-hours.md
+│   ├── project-faq.md
+│   └── typescript.md
 ├── docs/
 │   ├── design.md
-│   └── data-plan.md
+│   ├── data-plan.md
+│   └── WEEK-3.md
 ├── src/
+│   ├── lib/
+│   ├── resources/
 │   ├── schemas/
 │   ├── tools/
 │   └── index.ts
@@ -158,3 +160,10 @@ The P0 and P1 tools use Markdown files from the same directory, and the Week 3 d
 - Local fixture files make testing and Demo Day more reliable.
 - Failure cases should be planned before completing the handlers.
 - A shared data directory makes the project easier to understand and maintain.
+
+
+
+
+## MCP Inspector Testing
+
+The project uses local Markdown files stored in the `data/` directory as its data source. The `list_notes`, `search_notes`, and `read_note` P0 tools were tested successfully using MCP Inspector and returned real data from the files. I also tested an invalid request by sending an empty search query, which returned a clear validation error instead of stopping the server. The MCP server continued running normally after the failure test.
