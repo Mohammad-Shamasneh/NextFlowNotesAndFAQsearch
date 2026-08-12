@@ -1,8 +1,11 @@
 import { z } from "zod/v4";
 
-export const readNoteInputSchema = z.object({
-  noteName: z
-    .string()
-    .min(1)
-    .describe("Name of the Markdown note to read."),
-});
+import { noteNameInputSchema } from "./common.js";
+
+export const readNoteInputSchema = z
+  .object({
+    noteName: noteNameInputSchema.describe(
+      "Name of the Markdown note to read",
+    ),
+  })
+  .strict();
