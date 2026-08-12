@@ -1,36 +1,14 @@
 import { unlink } from "node:fs/promises";
-import { relative, resolve } from "node:path";
 
 import type { McpServer } from "@modelcontextprotocol/server";
 
+import { getExistingNote } from "../lib/notes.js";
+import {
+  createErrorToolResult,
+  createJsonToolResult,
+  logToolFailure,
+} from "../lib/tool-errors.js";
 import { deleteNoteInputSchema } from "../schemas/delete-note.js";
-
-function createSafeFileName(noteName: string): string | null {
-  const normalizedName = noteName.trim();
-
-  if (
-    normalizedName.includes("..") ||
-    normalizedName.includes("/") ||
-    normalizedName.includes("\\")
-  ) {
-    return null;
-  }
-
-  const nameWithoutExtension = normalizedName.replace(/\.md$/i, "");
-
-  const safeName = nameWithoutExtension
-    .toLowerCase()
-    .replace(/\s+/g, "-")
-    .replace(/[^\p{L}\p{N}_-]/gu, "")
-    .replace(/-+/g, "-")
-    .replace(/^[-_]+|[-_]+$/g, "");
-
-  if (!safeName) {
-    return null;
-  }
-
-  return `${safeName}.md`;
-}
 
 export function registerDeleteNoteTool(server: McpServer): void {
   server.registerTool(
@@ -40,75 +18,21 @@ export function registerDeleteNoteTool(server: McpServer): void {
         "Permanently delete an existing Markdown note from the local data directory. Use only when the user explicitly asks to delete a note.",
       inputSchema: deleteNoteInputSchema,
     },
-
     async ({ noteName }) => {
-      const fileName = createSafeFileName(noteName);
-
-      if (!fileName) {
-        return {
-          content: [
-            {
-              type: "text",
-              text: "Invalid note name. Do not use paths such as ../ or /.",
-            },
-          ],
-          isError: true,
-        };
-      }
-
-      const projectRoot = process.cwd();
-      const dataFolder = resolve(projectRoot, "data");
-      const notePath = resolve(dataFolder, fileName);
-
       try {
-        await unlink(notePath);
+        const note = await getExistingNote(noteName);
+        await unlink(note.filePath);
 
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(
-                {
-                  success: true,
-                  tool: "delete_note",
-                  fileName,
-                  path: relative(projectRoot, notePath),
-                  message: "Note deleted successfully.",
-                },
-                null,
-                2,
-              ),
-            },
-          ],
-        };
+        return createJsonToolResult({
+          success: true,
+          tool: "delete_note",
+          fileName: note.fileName,
+          path: note.relativePath,
+          message: "Note deleted successfully.",
+        });
       } catch (error) {
-        const fileError = error as NodeJS.ErrnoException;
-
-        console.error(
-          `[delete_note] Failed to delete "${fileName}": ${fileError.message}`,
-        );
-
-        if (fileError.code === "ENOENT") {
-          return {
-            content: [
-              {
-                type: "text",
-                text: `The note "${fileName}" does not exist.`,
-              },
-            ],
-            isError: true,
-          };
-        }
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: "Could not delete the note.",
-            },
-          ],
-          isError: true,
-        };
+        logToolFailure("delete_note", error);
+        return createErrorToolResult(error, "Unable to delete the note.");
       }
     },
   );

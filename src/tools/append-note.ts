@@ -1,131 +1,52 @@
-import { access, appendFile } from "node:fs/promises";
-import { relative, resolve } from "node:path";
+import { appendFile } from "node:fs/promises";
 
 import type { McpServer } from "@modelcontextprotocol/server";
 
+import { getExistingNote } from "../lib/notes.js";
+import { MAX_NOTE_FILE_BYTES } from "../lib/security-limits.js";
+import {
+  createErrorToolResult,
+  createJsonToolResult,
+  logToolFailure,
+  SafeToolError,
+} from "../lib/tool-errors.js";
 import { appendNoteInputSchema } from "../schemas/append-note.js";
-
-function createSafeFileName(noteName: string): string | null {
-  const normalizedName = noteName.trim();
-
-  if (
-    normalizedName.includes("..") ||
-    normalizedName.includes("/") ||
-    normalizedName.includes("\\")
-  ) {
-    return null;
-  }
-
-  const nameWithoutExtension = normalizedName.replace(/\.md$/i, "");
-
-  const safeName = nameWithoutExtension
-    .toLowerCase()
-    .replace(/\s+/g, "-")
-    .replace(/[^\p{L}\p{N}_-]/gu, "")
-    .replace(/-+/g, "-")
-    .replace(/^[-_]+|[-_]+$/g, "");
-
-  if (!safeName) {
-    return null;
-  }
-
-  return `${safeName}.md`;
-}
 
 export function registerAppendNoteTool(server: McpServer): void {
   server.registerTool(
     "append_note",
     {
       description:
-        "Append new content to an existing Markdown note inside the local data directory without replacing its current content.",
+        "Append content to an existing Markdown note in the local data directory.",
       inputSchema: appendNoteInputSchema,
     },
-
     async ({ noteName, content }) => {
-      if (!content.trim()) {
-        return {
-          content: [
-            {
-              type: "text",
-              text: "The content to append cannot be empty.",
-            },
-          ],
-          isError: true,
-        };
-      }
-
-      const fileName = createSafeFileName(noteName);
-
-      if (!fileName) {
-        return {
-          content: [
-            {
-              type: "text",
-              text: "Invalid note name. Do not use paths such as ../ or /.",
-            },
-          ],
-          isError: true,
-        };
-      }
-
-      const projectRoot = process.cwd();
-      const dataFolder = resolve(projectRoot, "data");
-      const notePath = resolve(dataFolder, fileName);
-
       try {
-        // Confirm that the note already exists.
-        await access(notePath);
+        const note = await getExistingNote(noteName);
+        const appendedText = `\n${content}\n`;
 
-        await appendFile(notePath, `\n${content.trim()}\n`, {
-          encoding: "utf8",
-        });
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(
-                {
-                  success: true,
-                  tool: "append_note",
-                  fileName,
-                  path: relative(projectRoot, notePath),
-                  message: "Content appended successfully.",
-                },
-                null,
-                2,
-              ),
-            },
-          ],
-        };
-      } catch (error) {
-        const fileError = error as NodeJS.ErrnoException;
-
-        console.error(
-          `[append_note] Failed to append to "${fileName}": ${fileError.message}`,
-        );
-
-        if (fileError.code === "ENOENT") {
-          return {
-            content: [
-              {
-                type: "text",
-                text: `The note "${fileName}" does not exist.`,
-              },
-            ],
-            isError: true,
-          };
+        if (
+          note.size + Buffer.byteLength(appendedText, "utf8") >
+          MAX_NOTE_FILE_BYTES
+        ) {
+          throw new SafeToolError(
+            "NOTE_FILE_TOO_LARGE",
+            "Appending this content would exceed the allowed note size.",
+          );
         }
 
-        return {
-          content: [
-            {
-              type: "text",
-              text: "Could not append content to the note.",
-            },
-          ],
-          isError: true,
-        };
+        await appendFile(note.filePath, appendedText, { encoding: "utf8" });
+
+        return createJsonToolResult({
+          success: true,
+          tool: "append_note",
+          fileName: note.fileName,
+          path: note.relativePath,
+          message: "Content appended successfully.",
+        });
+      } catch (error) {
+        logToolFailure("append_note", error);
+        return createErrorToolResult(error, "Unable to append to the note.");
       }
     },
   );

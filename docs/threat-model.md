@@ -4,7 +4,7 @@
 
 The main assets that need protection in our MCP server are:
 
-- Markdown and text files stored inside the `./data` directory.
+- Markdown files stored inside the `./data` directory.
 - The host machine's filesystem outside the `./data` directory.
 - Note contents returned by `read_note` and `search_notes`.
 - The integrity of notes modified by `add_note`, `append_note`, `update_note`, and `delete_note`.
@@ -31,7 +31,7 @@ The main trust boundaries in the project are:
 
 ### 1. Path Traversal
 
-Tools such as `read_note`, `list_notes`, `update_note`, `append_note`, and `delete_note` interact with local files. A malicious note name such as `../secret.txt` could attempt to access files outside `./data`.
+Tools such as `read_note`, `update_note`, `append_note`, and `delete_note` interact with local files. A malicious note name such as `../secret.txt` could attempt to access files outside `./data`.
 
 ### 2. Unsafe File Modification or Deletion
 
@@ -53,13 +53,13 @@ Internal filesystem paths, stack traces, environment variables, or other impleme
 
 | Risk | Mitigation |
 | --- | --- |
-| Path traversal | Resolve file paths against `./data`, reject `..`, `/`, and `\` where appropriate, and verify that resolved paths remain inside the allowed directory. |
-| Unsafe file modification/deletion | Allow only supported note filenames and extensions and validate targets before write or delete operations. |
-| Oversized inputs/responses | Add limits for note content, query length, file size, and number of returned results. |
-| Invalid tool inputs | Strengthen Zod schemas with length, range, and format validation before processing tool arguments. |
-| Information leakage | Log detailed failures to stderr while returning short, user-friendly error messages without internal paths, stack traces, or secrets. |
+| Path traversal | Resolve filename-only note paths against `./data`, reject Unix, Windows, absolute, and encoded path syntax, and verify that resolved paths remain inside the allowed directory. |
+| Unsafe file modification/deletion | Allow only regular, non-symbolic-link Markdown files and validate targets before write or delete operations. |
+| Oversized inputs/responses | Enforce centralized limits for note content, query length, file size, directory scans, aggregate search size, result counts, and returned output. |
+| Invalid tool inputs | Use strict Zod schemas with trimming, length, range, enum, and format validation before processing tool arguments. |
+| Information leakage | Return short safe messages and log bounded error codes to stderr without raw errors, inputs, paths, stack traces, or secrets. |
 
-Network requests, if introduced, will use the shared HTTP helper with a timeout and controlled destinations.
+Registered tools make no network requests. If networking is introduced, the shared HTTP helper requires HTTPS, a caller-provided host allowlist, bounded response sizes, and a bounded timeout.
 
 ## Out of Scope
 
@@ -68,7 +68,7 @@ The following areas are outside the scope of Week 4:
 - User authentication and authorization, because this is a local student MCP server rather than a multi-user production service.
 - Database security, because the project currently uses local Markdown/text fixtures rather than a database.
 - Production infrastructure security, deployment hardening, and distributed denial-of-service protection.
-- Advanced SSRF protection for arbitrary user-provided URLs, because the current P0 tools do not accept URLs or require external network access.
+- Tool-specific SSRF controls, because the current tools do not accept URLs or require external network access.
 - Enterprise secret-management systems, because the current project does not require API keys or other production secrets.
 
 These areas may be reconsidered if the project later adds remote APIs, authentication, databases, or production deployment.
