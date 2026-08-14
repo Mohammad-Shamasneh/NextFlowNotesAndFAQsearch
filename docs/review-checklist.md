@@ -54,9 +54,9 @@ Based on the peer review, the following fixes were recommended:
 
 | Action Item | Owner | Due Date | Status |
 | --- | --- | --- | --- |
-| Add before/after MCP Inspector screenshots showing the security attack being rejected to the hardening PR. | Nadeen Jaber | ASAP – before Week 4 submission | Open |
-| Replace `<MENTOR_EMAIL>` in `SECURITY.md` with the correct mentor contact information. | Mohammad Shamasneh | ASAP – before Week 4 submission | Open |
-| Review the `folder` field in `src/schemas/list-notes.ts` and either use it correctly in the handler or remove it if unnecessary. | Nadeen Jaber | ASAP – before Week 4 submission | Open |
+| Add before/after MCP Inspector screenshots showing the security attack being rejected to the hardening PR. | Nadeen Jaber | ASAP – before Week 4 submission | Fixed |
+| Replace `<MENTOR_EMAIL>` in `SECURITY.md` with the correct mentor contact information. | Mohammad Shamasneh | ASAP – before Week 4 submission | Fixed |
+| Review the `folder` field in `src/schemas/list-notes.ts` and either use it correctly in the handler or remove it if unnecessary. | Nadeen Jaber | ASAP – before Week 4 submission | Fixed |
 
 ## Review Conclusion
 
@@ -66,4 +66,4 @@ A small number of follow-up items were identified before the Week 4 submission i
 
 **Peer Reviewer:** Zaina Abusamra
 
-**Current Status:** Follow-up fixes required before final confirmation and merge.
+**Current Status:**  All peer review action items have been addressed. Awaiting final peer/mentor confirmation before merge.
