@@ -27,7 +27,6 @@ import {
 import { addNoteInputSchema } from "../src/schemas/add-note.js";
 import { appendNoteInputSchema } from "../src/schemas/append-note.js";
 import { deleteNoteInputSchema } from "../src/schemas/delete-note.js";
-import { greetInputSchema } from "../src/schemas/greet.js";
 import { listNotesInputSchema } from "../src/schemas/list-notes.js";
 import { readNoteInputSchema } from "../src/schemas/read-note.js";
 import { searchNotesInputSchema } from "../src/schemas/search-notes.js";
@@ -123,7 +122,6 @@ test("schemas reject empty, malformed, and oversized inputs without throwing", (
       .success,
     false,
   );
-  assert.equal(greetInputSchema.safeParse({ name: "\0" }).success, false);
   assert.equal(
     deleteNoteInputSchema.safeParse({ noteName: "note.md", extra: true })
       .success,
