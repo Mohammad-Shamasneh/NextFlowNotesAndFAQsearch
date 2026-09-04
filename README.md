@@ -7,7 +7,7 @@ local `.md` files.
 
 ## What it does
 
-The server exposes 8 tools over the **stdio** MCP transport:
+The server exposes 7 tools over the **stdio** MCP transport:
 
 - Search a collection of local Markdown notes by keyword and get back
   bounded, relevant snippets.
@@ -60,7 +60,6 @@ for the input.
 
 | Tool | Priority | What it does | Key inputs |
 | --- | --- | --- | --- |
-| `greet` | utility | Returns a short greeting; useful to confirm the server is running. | `name` |
 | `search_notes` | P0 | Searches all notes for a keyword/phrase and returns matching file names, paths, and snippets. | `query`, `limit` (optional) |
 | `list_notes` | P0 | Lists every Markdown note in `data/`. | — (no arguments) |
 | `read_note` | P0 | Returns the full content of one note. | `noteName` |
@@ -105,6 +104,13 @@ This is almost always one of: Node is older than 20 (`node -v` to check),
 `npm install` wasn't run first, or the command is being run from the
 wrong folder. Always run `npm run dev` / `npm run inspect` from the repo
 root so the server can resolve `./data`.
+
+## Academy
+
+This project was developed as part of the Nextflows Academy MCP Cohort.
+
+Nextflows Academy:
+https://nextflows.ai/academy
 
 ## License
 
