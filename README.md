@@ -1,5 +1,8 @@
 # Notes & FAQ Search — MCP Server
 
+> Built as part of **[NextFlows Academy](https://nextflows.ai/academy)** — Cohort #1: *Building an MCP for an AI Engine*.
+> Academy hub: **https://nextflows.ai/academy**
+
 A local, offline **Model Context Protocol (MCP)** server that lets an AI
 assistant (e.g. Claude) search, read, and manage a folder of Markdown
 notes. No network access or API keys required — everything runs against
