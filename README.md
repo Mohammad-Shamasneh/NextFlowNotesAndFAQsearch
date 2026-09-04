@@ -1,5 +1,8 @@
 # Notes & FAQ Search — MCP Server
 
+> Built as part of **[NextFlows Academy](https://nextflows.ai/academy)** — Cohort #1: *Building an MCP for an AI Engine*.
+> Academy hub: **https://nextflows.ai/academy**
+
 A local, offline **Model Context Protocol (MCP)** server that lets an AI
 assistant (e.g. Claude) search, read, and manage a folder of Markdown
 notes. No network access or API keys required — everything runs against
@@ -60,6 +63,7 @@ for the input.
 
 | Tool | Priority | What it does | Key inputs |
 | --- | --- | --- | --- |
+| `greet` | utility | Returns a short greeting; useful to confirm the server is running. | `name` |
 | `search_notes` | P0 | Searches all notes for a keyword/phrase and returns matching file names, paths, and snippets. | `query`, `limit` (optional) |
 | `list_notes` | P0 | Lists every Markdown note in `data/`. | — (no arguments) |
 | `read_note` | P0 | Returns the full content of one note. | `noteName` |
